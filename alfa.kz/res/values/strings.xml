@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Chat General V.M.</string>
+    <string name="dummy_button">OK</string>
+    <string name="dummy_content">Chat</string>
+	<string name="clear">Clear All</string>  
+	<string name="text">Enter text here</string>  
+	<string name="restore">Restore All</string>  
+	<string name="refresh">Refresh list</string>  
+</resources>
