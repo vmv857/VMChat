@@ -280,7 +280,7 @@ public class ChatActivity extends FragmentActivity implements
 
 	void someTask() { // число потоков ограниченно :(
 		Timer myTimer = new Timer(); // Создаем таймер
-		//Log.v(LOG_TAG, " someTask ");
+		Log.v(LOG_TAG, " someTask ");
 		myTimer.schedule(new TimerTask() { // Определяем задачу
 					@Override
 					public void run() {
