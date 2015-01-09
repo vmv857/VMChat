@@ -3,6 +3,7 @@ package kz.alfa;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import me.noip.vmv857.loc.LocDbHlp;
 import me.noip.vmv857.loc.LocGetTask;
 import kz.alfa.util.Db_Helper;
 import kz.alfa.util.LocJdbcTask;
@@ -244,6 +245,7 @@ public class ChatActivity extends FragmentActivity implements
 			RefreshW();
 			return true;
 		case R.id.test:
+			LocDbHlp.s_print_loc_idwho(this);
 			Toast.makeText(this, "last_loc_id="+Pref.getLong("last_loc_id", 0), Toast.LENGTH_SHORT).show();
 			return true;
 		default:

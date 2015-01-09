@@ -10,14 +10,19 @@
     <item
         android:id="@+id/refresh"
         android:icon="@android:drawable/ic_menu_rotate"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:title="@string/refresh">
     </item>
     <item
         android:id="@+id/restore"
         android:icon="@android:drawable/ic_menu_view"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:title="@string/restore">
     </item>
-    
+    <item
+        android:id="@+id/test"
+        android:icon="@android:drawable/ic_menu_call"
+        android:showAsAction="always"
+        android:title="@string/test">
+    </item>
 </menu>

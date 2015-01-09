@@ -69,7 +69,7 @@ public class LocDbHlp extends SQLiteOpenHelper {
 	}
 
 	public Cursor get_loc(String where) {
-		SQLiteDatabase db = this.getWritableDatabase();
+		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.query(TAB_NAME, null, where, null, null, null, " _id desc ");
 		return c;
 	}
@@ -97,7 +97,7 @@ public class LocDbHlp extends SQLiteOpenHelper {
 	}
 	
 	public void print_loc_idwho() {
-		SQLiteDatabase db = this.getWritableDatabase();
+		SQLiteDatabase db = this.getReadableDatabase();
 		Log.v(LOG_TAG, "--- Rows in loc: ---");
 		Cursor c = db.query(true, TAB_NAME, new String[]{"idwho"}, null, null, null, null, null, null);
 		String prn = "\n <table border=1 >";
@@ -112,9 +112,9 @@ public class LocDbHlp extends SQLiteOpenHelper {
 			} while ((n<100)&&(c.moveToNext()));
 			prn = prn + "\n </table>";
 			Log.v(LOG_TAG, prn);
-			Log.v(LOG_TAG, n+" rows");
+			Log.e(LOG_TAG, n+" rows");
 		} else{
-			Log.v(LOG_TAG, "0 rows");
+			Log.e(LOG_TAG, "0 rows");
 		}
 		c.close();
 		this.close();
