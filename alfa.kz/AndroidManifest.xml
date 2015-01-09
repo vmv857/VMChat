@@ -31,8 +31,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-            android:name="com.google.ads.AdActivity" />
+            android:name="kz.alfa.MapActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+       		android:theme="@style/FullscreenTheme"
+            android:label="@string/test">
+        </activity>
         
                 
     </application>

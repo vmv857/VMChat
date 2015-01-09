@@ -15,13 +15,20 @@ public class LocDbHlp extends SQLiteOpenHelper {
 
 	public LocDbHlp(Context context) {
 		// конструктор суперкласса
-		super(context, DB_NAME, null, 1);
+		super(context, DB_NAME, null, 2);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		Log.v(LOG_TAG, "--- onCreate database ---");
-		
+	
+		db.execSQL("create table idwho ("
+				+ "_id integer primary key, " //  с сервера
+				+ "idwho varchar(100) unique not null, " // источник
+				+ "cnt_gps INTEGER, " // 
+				+ "cnt_net INTEGER, " // 
+				+ "date_time TIMESTAMP default CURRENT_TIMESTAMP );");
+
 		db.execSQL("create table "+TAB_NAME+" ("
 				+ "_id integer primary key ," //  с сервера
 				+ "idwho text," // ,"источник"
@@ -111,13 +118,19 @@ public class LocDbHlp extends SQLiteOpenHelper {
 				prn += "\n </tr>";
 			} while ((n<100)&&(c.moveToNext()));
 			prn = prn + "\n </table>";
-			Log.v(LOG_TAG, prn);
+			Log.e(LOG_TAG, prn);
 			Log.e(LOG_TAG, n+" rows");
 		} else{
 			Log.e(LOG_TAG, "0 rows");
 		}
 		c.close();
 		this.close();
+	}
+
+	public Cursor get_idwho() {
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.query("idwho", null, null, null, null, null, " _id desc ");
+		return c;
 	}
 
 }

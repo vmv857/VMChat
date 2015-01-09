@@ -1,40 +1,26 @@
 package kz.alfa;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
-import me.noip.vmv857.loc.LocGetTask;
-import kz.alfa.util.Db_Helper;
-import kz.alfa.util.LocJdbcTask;
-import kz.alfa.util.LocUpTask;
+import me.noip.vmv857.loc.IdWhoCursorLoader;
+import me.noip.vmv857.loc.LocDbHlp;
 import kz.alfa.util.Cnt;
-import kz.alfa.util.Log;
-import kz.alfa.util.Pref;
-import kz.alfa.util.SendTask;
-import kz.alfa.util.GetTask;
 import kz.alfa.util.SystemUiHider;
 import com.besaba.vmchat2.R;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.widget.AbsListView;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -43,9 +29,9 @@ import android.widget.Toast;
  * @see SystemUiHider
  */
 @SuppressLint("ClickableViewAccessibility")
-public class ChatActivity extends FragmentActivity implements
+public class MapActivity extends FragmentActivity implements
 		LoaderCallbacks<Cursor> {
-	private static String LOG_TAG = "ChatActivity";
+//	private static String LOG_TAG = "ChatActivity";
 	/**
 	 * Whether or not the system UI should be auto-hidden after
 	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -74,19 +60,17 @@ public class ChatActivity extends FragmentActivity implements
 	 */
 	private SystemUiHider mSystemUiHider;
 
-	public static ChatActivity ch;
-	private Db_Helper db;
+	public static MapActivity ma;
+	private LocDbHlp db;
 	private ListView lvMain;
-	private ChatSimpleCursorAdapter scAdapter;
-	private EditText etSend;
-	private CheckBox cbScroll;
+	private SimpleCursorAdapter scAdapter;
 
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Cnt.set(getApplicationContext());
-		ch = this;
-		getWindow().requestFeature(Window.FEATURE_PROGRESS);
+		ma = this;
+		//getWindow().requestFeature(Window.FEATURE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_fullscreen);
 		// находим список
@@ -100,21 +84,19 @@ public class ChatActivity extends FragmentActivity implements
 			}
 		});
 		// открываем подключение к БД
-		db = new Db_Helper(this);
+		db = new LocDbHlp(this);
 		// формируем столбцы сопоставления
-		String[] from = new String[] { "who", "what", "dt_serv" };
-		int[] to = new int[] { R.id.tvTextWho, R.id.tvTextWhat, R.id.tvTextWhen };
+		String[] from = new String[] { "idwho", "cnt_gps", "cnt_net" };
+		int[] to = new int[] { R.id.tvTextWho, R.id.tvTextCntGps, R.id.tvTextCntNet };
 		// создааем адаптер и настраиваем список
-		scAdapter = new ChatSimpleCursorAdapter(this, R.xml.item, null, from,
+		scAdapter = new SimpleCursorAdapter(this, R.xml.item_who, null, from,
 				to, 0);
 		lvMain.setAdapter(scAdapter);
 		// создаем лоадер для чтения данных
 		getSupportLoaderManager().initLoader(0, null, this);
 
-		cbScroll = (CheckBox) findViewById(R.id.cbScroll);
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
-		etSend = (EditText) findViewById(R.id.etSend);
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -176,11 +158,7 @@ public class ChatActivity extends FragmentActivity implements
 		// while interacting with the UI.
 		findViewById(R.id.dummy_button).setOnTouchListener(
 				mDelayHideTouchListener);
-		etSend.setOnTouchListener(mDelayHideTouchListener);
 		mSystemUiHider.toggle();
-		someTask();
-		kz.alfa.util.LocListener.SetUpLocationListener();
-		RefreshW();
 	}
 
 	@Override
@@ -230,24 +208,10 @@ public class ChatActivity extends FragmentActivity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
 		switch (item.getItemId()) {
-		case R.id.clear:
-			Db_Helper dbHelp = new Db_Helper(Cnt.get());
-			Pref.edit("show_id", dbHelp.get_max_id());
-			db.del_all();
-			RefreshW();
-			return true;
-		case R.id.restore:
-			Pref.edit("show_id", 0);
-			Pref.edit("last_id", 0);
-			RefreshW();
-			return true;
 		case R.id.refresh:
+			db.getWritableDatabase().execSQL("delete from idwho; ");
+			db.getWritableDatabase().execSQL("insert into idwho (idwho, cnt_gps, cnt_net) select idwho, count(_id), count(_id) from locAll group by idwho ; ");
 			RefreshW();
-			return true;
-		case R.id.test:
-			Toast.makeText(this, "last_loc_id="+Pref.getLong("last_loc_id", 0), Toast.LENGTH_SHORT).show();
-			Intent intent = new Intent(this, MapActivity.class);
-		    startActivity(intent);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -256,77 +220,12 @@ public class ChatActivity extends FragmentActivity implements
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.map, menu);
 		return true;
-	}
-
-	public void ClickCBS(View v) {
-		RefreshW();
-	}
-
-	public void clickOk(View v) {
-		String txt = etSend.getText().toString();
-		if (txt.length() > 0) {
-			etSend.getText().clear();
-			if (SendTask.taskStarted < 1) {
-				SendTask taskLup = new SendTask();
-				taskLup.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-						new String[] { txt });
-			}
-		} else
-			Toast.makeText(this, "Введите текст сначала", Toast.LENGTH_SHORT)
-					.show();
-		RefreshW();
 	}
 
 	public void RefreshW() {
 		getSupportLoaderManager().getLoader(0).forceLoad();
-		if (cbScroll.isChecked()) {
-			lvMain.setSelected(true);
-			lvMain.setSelection(lvMain.getCount());
-		}
-	}
-
-	void someTask() { // число потоков ограниченно :(
-		Timer myTimer = new Timer(); // Создаем таймер
-		Log.v(LOG_TAG, " someTask ");
-		myTimer.schedule(new TimerTask() { // Определяем задачу
-					@Override
-					public void run() {
-						/*
-						 * kz.alfa.util.Log.v(LOG_TAG, "someTask scrollPos=" +
-						 * scrollPos + " SendTask = " + SendTask.taskStarted +
-						 * " GetTask   = " + GetTask.taskStarted +
-						 * " LocUpTask  = " + LocUpTask.taskStarted +
-						 * " JdbcTask   = " + LocJdbcTask.taskStarted);
-						 */
-						if (GetTask.taskStarted < 1) {
-							GetTask taskG = new GetTask();
-							taskG.executeOnExecutor(
-									AsyncTask.THREAD_POOL_EXECUTOR,
-									new String[] {});
-						}
-						if (LocGetTask.taskStarted < 1) {
-							LocGetTask taskLG = new LocGetTask();
-							taskLG.executeOnExecutor(
-									AsyncTask.THREAD_POOL_EXECUTOR,
-									new String[] {});
-						}
-						if (LocJdbcTask.taskStarted < 1) {
-							LocJdbcTask taskJ = new LocJdbcTask();
-							taskJ.executeOnExecutor(
-									AsyncTask.THREAD_POOL_EXECUTOR,
-									new String[] {});
-
-						}
-						if (LocUpTask.taskStarted < 1) {
-							LocUpTask taskLup = new LocUpTask();
-							taskLup.executeOnExecutor(
-									AsyncTask.THREAD_POOL_EXECUTOR,
-									new String[] {});
-						}
-					}
-				}, 30L * 1000L, 3L * 1000L); // интервал
 	}
 
 	protected void onDestroy() {
@@ -337,7 +236,7 @@ public class ChatActivity extends FragmentActivity implements
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle bndl) {
-		return new ChatCursorLoader(this, db);
+		return new IdWhoCursorLoader(this, db);
 	}
 
 	@Override
