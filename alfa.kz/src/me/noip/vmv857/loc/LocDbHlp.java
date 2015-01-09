@@ -64,6 +64,7 @@ public class LocDbHlp extends SQLiteOpenHelper {
 			if (loc._id > l)
 				Pref.edit("last_loc_id", loc._id);
 		}
+		this.close();
 		return res;
 	}
 
@@ -98,7 +99,7 @@ public class LocDbHlp extends SQLiteOpenHelper {
 	public void print_loc_idwho() {
 		SQLiteDatabase db = this.getWritableDatabase();
 		Log.v(LOG_TAG, "--- Rows in loc: ---");
-		Cursor c = db.query(TAB_NAME, null, null, null, "idwho", null, " 1 ");
+		Cursor c = db.query(true, TAB_NAME, new String[]{"idwho"}, null, null, null, null, null, null);
 		String prn = "\n <table border=1 >";
 		if (c.moveToFirst()) {
 			int n = 0;
@@ -108,7 +109,7 @@ public class LocDbHlp extends SQLiteOpenHelper {
 				for(int i=0; i<c.getColumnCount(); ++i)
 					prn += "\n <td>"+i+" "+c.getColumnName(i)+" = "+c.getString(i)+"</td>";
 				prn += "\n </tr>";
-			} while ((n<10)&&(c.moveToNext()));
+			} while ((n<100)&&(c.moveToNext()));
 			prn = prn + "\n </table>";
 			Log.v(LOG_TAG, prn);
 			Log.v(LOG_TAG, n+" rows");
