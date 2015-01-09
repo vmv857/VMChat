@@ -2,6 +2,8 @@ package kz.alfa;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+import me.noip.vmv857.loc.LocGetTask;
 import kz.alfa.util.Db_Helper;
 import kz.alfa.util.LocJdbcTask;
 import kz.alfa.util.LocUpTask;
@@ -241,6 +243,9 @@ public class ChatActivity extends FragmentActivity implements
 		case R.id.refresh:
 			RefreshW();
 			return true;
+		case R.id.test:
+			Toast.makeText(this, "last_loc_id="+Pref.getLong("last_loc_id", 0), Toast.LENGTH_SHORT).show();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -263,16 +268,17 @@ public class ChatActivity extends FragmentActivity implements
 			if (SendTask.taskStarted < 1) {
 				SendTask taskLup = new SendTask();
 				taskLup.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-						new String[] {txt});
+						new String[] { txt });
 			}
 		} else
-			Toast.makeText(this, "¬ведите текст сначала", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "¬ведите текст сначала", Toast.LENGTH_SHORT)
+					.show();
 		RefreshW();
 	}
 
 	public void RefreshW() {
 		getSupportLoaderManager().getLoader(0).forceLoad();
-		if (cbScroll.isChecked()){
+		if (cbScroll.isChecked()) {
 			lvMain.setSelected(true);
 			lvMain.setSelection(lvMain.getCount());
 		}
@@ -285,16 +291,21 @@ public class ChatActivity extends FragmentActivity implements
 					@Override
 					public void run() {
 						/*
-						kz.alfa.util.Log.v(LOG_TAG, "someTask scrollPos="
-								+ scrollPos + " SendTask = "
-								+ SendTask.taskStarted + " GetTask   = "
-								+ GetTask.taskStarted + " LocUpTask  = "
-								+ LocUpTask.taskStarted + " JdbcTask   = "
-								+ LocJdbcTask.taskStarted);
-						*/
+						 * kz.alfa.util.Log.v(LOG_TAG, "someTask scrollPos=" +
+						 * scrollPos + " SendTask = " + SendTask.taskStarted +
+						 * " GetTask   = " + GetTask.taskStarted +
+						 * " LocUpTask  = " + LocUpTask.taskStarted +
+						 * " JdbcTask   = " + LocJdbcTask.taskStarted);
+						 */
 						if (GetTask.taskStarted < 1) {
 							GetTask taskG = new GetTask();
 							taskG.executeOnExecutor(
+									AsyncTask.THREAD_POOL_EXECUTOR,
+									new String[] {});
+						}
+						if (LocGetTask.taskStarted < 1) {
+							LocGetTask taskLG = new LocGetTask();
+							taskLG.executeOnExecutor(
 									AsyncTask.THREAD_POOL_EXECUTOR,
 									new String[] {});
 						}

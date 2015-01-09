@@ -6,4 +6,5 @@
 	<string name="text">Enter text here</string>  
 	<string name="restore">Restore All</string>  
 	<string name="refresh">Refresh list</string>  
+	<string name="test">Test GPS</string>  
 </resources>
