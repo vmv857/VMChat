@@ -90,5 +90,33 @@ public class LocDbHlp extends SQLiteOpenHelper {
 		return l;
 	}
 
+	public static void s_print_loc_idwho(Context cnt){
+		LocDbHlp dh = new LocDbHlp(cnt);
+		dh.print_loc_idwho();
+	}
+	
+	public void print_loc_idwho() {
+		SQLiteDatabase db = this.getWritableDatabase();
+		Log.v(LOG_TAG, "--- Rows in loc: ---");
+		Cursor c = db.query(TAB_NAME, null, null, null, "idwho", null, " 1 ");
+		String prn = "\n <table border=1 >";
+		if (c.moveToFirst()) {
+			int n = 0;
+			do {
+				n++;
+				prn += "\n <tr>";
+				for(int i=0; i<c.getColumnCount(); ++i)
+					prn += "\n <td>"+i+" "+c.getColumnName(i)+" = "+c.getString(i)+"</td>";
+				prn += "\n </tr>";
+			} while ((n<10)&&(c.moveToNext()));
+			prn = prn + "\n </table>";
+			Log.v(LOG_TAG, prn);
+			Log.v(LOG_TAG, n+" rows");
+		} else{
+			Log.v(LOG_TAG, "0 rows");
+		}
+		c.close();
+		this.close();
+	}
 
 }
